@@ -20,8 +20,8 @@ def main(logging=False):
         time = datetime.now().strftime("%y%m%d_%H%M%S")
         sys.stdout = open("log_ColorEncoder_{}.txt".format(time), "w")
 
-    train_path = '../dataset/train'
-    valid_path = '../dataset/valid'
+    train_path = '/home/tahir/workspace2/descan_extension/data_set/Descan_dataset/Train'
+    valid_path = '/home/tahir/workspace2/descan_extension/data_set/Descan_dataset/Valid'
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print("Device: ", device)
@@ -38,12 +38,13 @@ def main(logging=False):
     save_epoch = 2
     lr = 3e-4
     weight_decay = 1e-5
+    MODEL = 'R34' # R50
 
     color_encoder_dataset = ColorEncoderDataset(train_path)
-    train_dataloader = DataLoader(color_encoder_dataset, batch_size=batch_size, shuffle=True, drop_last=True, num_workers=8)
+    train_dataloader = DataLoader(color_encoder_dataset, batch_size=batch_size, shuffle=True, drop_last=True, num_workers=0)
     print('The number of Data: ', len(color_encoder_dataset))
 
-    model = initialize_model(device)
+    model = initialize_model(device, MODEL)
     criterion = nn.MSELoss()
     optimizer = optim.Adam(model.parameters(), lr=lr, weight_decay=weight_decay)
 
