@@ -4,15 +4,40 @@ import torch
 import torchvision
 from torch import nn
 
-
+class ModifiedResNet50(nn.Module):
+    def __init__(self, base_model):
+        super(ModifiedResNet50, self).__init__()
+        self.base_model = nn.Sequential(*list(base_model.children())[:-1])  # Keep all layers except the final fc
+        
+        # Define the new layers
+        self.fc1 = nn.Linear(2048, 512)
+        self.fc2 = nn.Linear(512, 6)
+        self.sigmoid = nn.Sigmoid()  # Sigmoid to ensure outputs are between 0 and 1
+        
+    def forward(self, x):
+        x = self.base_model(x)  # Forward pass through ResNet50 backbone
+        x = torch.flatten(x, 1)  # Flatten the output from the base model
+        x = self.fc1(x)  # First linear layer (2048 -> 512)
+        x = nn.ReLU()(x)  # Apply ReLU activation
+        x = self.fc2(x)  # Second linear layer (512 -> 6)
+        x = self.sigmoid(x)  # Sigmoid activation to bound the output between 0 and 1
+        return x
+    
 def psnr(img1, img2):
     return 20 * torch.log10(1.0 / torch.sqrt(torch.mean((img1 - img2) ** 2)))
 
-def initialize_model(device):
-    model = torchvision.models.resnet34(pretrained=False, progress=True)
-    model.fc = nn.Linear(in_features=512, out_features=6, bias=False)
-    print('Device: ', device)
+def initialize_model(device, MODEL): 
+    if MODEL == 'R34':
 
+        model = torchvision.models.resnet34(pretrained=False, progress=True)
+        model.fc = nn.Linear(in_features=512, out_features=6, bias=False)
+        print('Device: ', device)
+    
+    elif MODEL == 'R50': 
+        model = ModifiedResNet50(torchvision.models.resnet50(pretrained=False, progress=True))
+
+    else: 
+        print('CORRECT MODEL NOT SELECTED.')
     return model.to(device)
 
 def calculate_mean_std(image):
