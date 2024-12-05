@@ -19,8 +19,8 @@ class ColorEncoderDataset(Dataset):
         return Image.open(img_path)
 
     def image_paths(self, parent_dir):
-        clean_path = join(parent_dir, 'clean')
-        scan_path = join(parent_dir, 'scan')
+        clean_path = join(parent_dir, 'clean_512')
+        scan_path = join(parent_dir, 'scan_512')
         
         sorted_files = natsort.natsorted(listdir(clean_path), reverse=True)
         dir_clean = [join(clean_path, f) for f in sorted_files if isfile(join(clean_path, f))]
