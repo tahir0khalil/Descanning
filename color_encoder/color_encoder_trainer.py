@@ -14,8 +14,10 @@ def train(model, dataloaders, test_folder, criterion, optimizer, device, num_epo
     for epoch in range(num_epochs):
         model.train()
         running_loss = 0.0
-
-        for _, (scan_img, clean_statistics) in enumerate(dataloaders, start=1):
+        # print (f"EPOCH NUMBER: {epoch}")
+        count = 0 
+        # for _, (scan_img, clean_statistics) in enumerate(dataloaders, start=1):
+        for scan_img, clean_statistics in dataloaders:
             scan_img, clean_statistics = scan_img.to(device), clean_statistics.to(device)
             optimizer.zero_grad()
             outputs = model(scan_img)
@@ -23,6 +25,8 @@ def train(model, dataloaders, test_folder, criterion, optimizer, device, num_epo
             loss.backward()
             optimizer.step()
             running_loss += loss.item() * scan_img.size(0)
+            count += 1 
+            # print (f"COUNT: {count}")
 
         epoch_loss = running_loss / len(dataloaders.dataset)
         print(f'Epoch {epoch + 1}/{num_epochs} | Loss: {epoch_loss:.5f} | Learning Rate: {optimizer.param_groups[0]["lr"]:.3e}')
